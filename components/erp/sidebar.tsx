@@ -38,11 +38,12 @@ const navigation = [
       { name: "By Project", href: "/inventory/projects" },
     ],
   },
-  {
+{
     name: "Sales",
     href: "/sales",
     icon: TrendingUp,
     children: [
+      { name: "Overview", href: "/sales" }, // Changed name to 'Overview' for clarity
       { name: "Leads", href: "/sales/leads" },
       { name: "Reservations", href: "/sales/reservations" },
       { name: "Bookings", href: "/sales/bookings" },
