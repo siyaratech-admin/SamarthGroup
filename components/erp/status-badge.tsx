@@ -149,7 +149,8 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status] || {
+  const statusKey = status.toLowerCase() as StatusType
+  const config = statusConfig[statusKey] || {
     label: status,
     className: "bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400",
   }

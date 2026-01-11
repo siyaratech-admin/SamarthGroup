@@ -25,48 +25,41 @@ const navigation = [
     icon: LayoutDashboard,
     children: [
       { name: "Sales Overview", href: "/" },
+      { name: "Pre-Sales", href: "/presales/dashboard" },
       { name: "Finance Overview", href: "/dashboard/finance" },
       { name: "Inventory Overview", href: "/dashboard/inventory" },
     ],
   },
   {
-    name: "Inventory",
-    href: "/inventory",
-    icon: Building2,
-    children: [
-      { name: "All Units", href: "/inventory" },
-      { name: "By Project", href: "/inventory/projects" },
-    ],
-  },
-{
-    name: "Sales",
-    href: "/sales",
+    name: "Pre-Sales",
+    href: "/presales",
     icon: TrendingUp,
     children: [
-      { name: "Overview", href: "/sales" }, // Changed name to 'Overview' for clarity
-      { name: "Leads", href: "/sales/leads" },
-      { name: "Reservations", href: "/sales/reservations" },
-      { name: "Bookings", href: "/sales/bookings" },
+      { name: "Dashboard", href: "/presales/dashboard" },
+      { name: "Leads", href: "/presales/leads" },
+      { name: "Campaigns", href: "/presales/campaigns" },
     ],
   },
   {
-    name: "Invoicing",
-    href: "/invoices",
-    icon: FileText,
-  },
-  {
-    name: "Payments",
-    href: "/payments",
-    icon: CreditCard,
+    name: "Sales",
+    href: "/sales",
+    icon: Building2,
     children: [
-      { name: "All Payments", href: "/payments" },
-      { name: "Customer Ledger", href: "/payments/ledger" },
+      { name: "Inventory", href: "/inventory" },
+      { name: "Bookings", href: "/sales/bookings" },
+      { name: "Reservations", href: "/sales/reservations" },
     ],
   },
   {
-    name: "Documents",
-    href: "/documents",
-    icon: FolderOpen,
+    name: "Post-Sales",
+    href: "/postsales",
+    icon: FileText,
+    children: [
+      { name: "Invoices & Demands", href: "/invoices" },
+      { name: "Payments & Ledger", href: "/payments" },
+      { name: "Documents", href: "/documents" },
+      { name: "Possession", href: "/possession" },
+    ],
   },
 ]
 
@@ -96,13 +89,13 @@ export function Sidebar() {
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 items-center gap-2.5 border-b border-sidebar-border px-4 lg:h-16 lg:px-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+      <div className="flex h-14 items-center gap-2.5 border-b border-sidebar-border/50 px-4 lg:h-16 lg:px-5 bg-gradient-to-r from-sidebar-accent/50 to-transparent">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-md shadow-primary/20">
           <Home className="h-4 w-4 text-primary-foreground" />
         </div>
         <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-semibold text-sidebar-foreground">Samarth Group</span>
-          <span className="text-[10px] text-muted-foreground lg:text-xs">SIFMS</span>
+          <span className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">Samarth Group</span>
+          <span className="text-[10px] font-medium text-muted-foreground lg:text-xs">SIFMS Premium</span>
         </div>
         <Button
           variant="ghost"
@@ -205,7 +198,8 @@ export function Sidebar() {
         <Menu className="h-4 w-4" />
       </Button>
 
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-60 border-r border-sidebar-border bg-sidebar lg:block xl:w-64">
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-60 border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl supports-[backdrop-filter]:bg-sidebar/60 lg:block xl:w-64">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
         <SidebarContent />
       </aside>
 

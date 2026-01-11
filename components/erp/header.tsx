@@ -18,7 +18,7 @@ export function Header({ title, subtitle }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:h-16 lg:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/40 bg-background/80 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 lg:h-16 lg:px-6 shadow-sm shadow-black/5">
       <div className="min-w-0 flex-1 pl-11 lg:pl-0">
         <h1 className="truncate text-base font-semibold text-foreground lg:text-lg">{title}</h1>
         {subtitle && <p className="hidden truncate text-xs text-muted-foreground sm:block lg:text-sm">{subtitle}</p>}

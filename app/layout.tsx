@@ -23,13 +23,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased bg-background text-foreground selection:bg-primary/10 selection:text-primary">
         <ThemeProvider defaultTheme="light" storageKey="erp-theme">
           <div className="flex min-h-screen w-full relative">
             <Sidebar />
             {/* Main container logic for responsiveness */}
             <main className="min-h-screen w-full flex-1 min-w-0 lg:ml-60 xl:ml-64 transition-all duration-300">
-               {children}
+              {children}
             </main>
           </div>
         </ThemeProvider>

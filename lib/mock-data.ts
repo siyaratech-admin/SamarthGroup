@@ -18,13 +18,43 @@ export interface Unit {
 export interface Lead {
   id: string
   name: string
+  contact: string
   email: string
   phone: string
-  source: string
-  status: "new" | "contacted" | "qualified" | "negotiation" | "converted" | "lost"
+  source: "Walk-in" | "Channel Partner" | "Property Portal" | "Digital Ads" | "Referral" | "Campaign"
+  budget: string
+  preferredProject: string
+  unitType: string
+  status: "New" | "Contacted" | "Site Visit Scheduled" | "Interested" | "Not Interested" | "Lost" | "Qualified" | "Negotiation" | "Converted"
   interestedUnit: string
-  createdAt: string
   assignedTo: string
+  createdAt: string
+  lastActivity: string
+}
+
+export interface Campaign {
+  id: string
+  name: string
+  type: "Project Launch" | "Festive Offer" | "Online Ad" | "Event"
+  channel: "Online" | "Offline"
+  status: "Active" | "Completed" | "Planned"
+  startDate: string
+  endDate: string
+  budget: number
+  spend: number
+  leadsGenerated: number
+  conversions: number
+  roi: number
+}
+
+export interface Activity {
+  id: string
+  leadId: string
+  type: "Call" | "Meeting" | "Site Visit" | "Email" | "WhatsApp"
+  description: string
+  date: string
+  status: "Completed" | "Scheduled" | "Pending"
+  outcome?: string
 }
 
 export interface Reservation {
@@ -99,9 +129,10 @@ export interface Document {
 
 // Projects Data
 export const projects = [
-  { id: "p1", name: "Samarth Heights", towers: ["Tower A", "Tower B", "Tower C"] },
-  { id: "p2", name: "Samarth Gardens", towers: ["Tower 1", "Tower 2"] },
-  { id: "p3", name: "Samarth Residency", towers: ["Block A", "Block B", "Block C", "Block D"] },
+  { id: "p1", name: "Samarth Heights", type: "Residential", towers: ["Tower A", "Tower B", "Tower C"] },
+  { id: "p2", name: "Samarth Gardens", type: "Residential", towers: ["Tower 1", "Tower 2"] },
+  { id: "p3", name: "Samarth Residency", type: "Residential", towers: ["Block A", "Block B", "Block C", "Block D"] },
+  { id: "p4", name: "Samarth Plaza", type: "Commercial", towers: ["Wing A (Retail)", "Wing B (Offices)"] },
 ]
 
 // Units Data
@@ -233,6 +264,83 @@ export const units: Unit[] = [
     statusHistory: [{ date: "2024-02-01", status: "Listed", user: "Admin" }],
     amenities: ["Balcony", "Parking", "Garden View"],
   },
+  {
+    id: "u9",
+    unitNo: "GF-01",
+    projectName: "Samarth Plaza",
+    towerName: "Wing A (Retail)",
+    floor: 0,
+    type: "Shop",
+    carpetArea: 450,
+    price: 12500000,
+    pricePerSqFt: 27777,
+    status: "available",
+    statusHistory: [{ date: "2024-03-01", status: "Listed", user: "Admin" }],
+    amenities: ["Main Road Facing", "High Ceiling", "Water Connection"],
+  },
+  {
+    id: "u10",
+    unitNo: "GF-02",
+    projectName: "Samarth Plaza",
+    towerName: "Wing A (Retail)",
+    floor: 0,
+    type: "Showroom",
+    carpetArea: 1200,
+    price: 35000000,
+    pricePerSqFt: 29166,
+    status: "booked",
+    statusHistory: [
+      { date: "2024-03-01", status: "Listed", user: "Admin" },
+      { date: "2024-03-10", status: "Booked", user: "Sales Team" },
+    ],
+    amenities: ["Corner Unit", "glass Frontage", "Private Parking"],
+  },
+  {
+    id: "u11",
+    unitNo: "OF-101",
+    projectName: "Samarth Plaza",
+    towerName: "Wing B (Offices)",
+    floor: 1,
+    type: "Office",
+    carpetArea: 800,
+    price: 18000000,
+    pricePerSqFt: 22500,
+    status: "available",
+    statusHistory: [{ date: "2024-03-01", status: "Listed", user: "Admin" }],
+    amenities: ["Central AC", "Power Backup", "Conf Room Access"],
+  },
+]
+
+// Campaigns Data
+export const campaigns: Campaign[] = [
+  {
+    id: "camp1",
+    name: "New Year Bonanza",
+    type: "Festive Offer",
+    channel: "Online",
+    status: "Active",
+    startDate: "2024-01-01",
+    endDate: "2024-01-31",
+    budget: 500000,
+    spend: 350000,
+    leadsGenerated: 150,
+    conversions: 12,
+    roi: 240,
+  },
+  {
+    id: "camp2",
+    name: "Samarth Heights Launch",
+    type: "Project Launch",
+    channel: "Offline",
+    status: "Completed",
+    startDate: "2023-11-01",
+    endDate: "2023-11-30",
+    budget: 1000000,
+    spend: 980000,
+    leadsGenerated: 300,
+    conversions: 45,
+    roi: 310,
+  },
 ]
 
 // Leads Data
@@ -240,57 +348,104 @@ export const leads: Lead[] = [
   {
     id: "l1",
     name: "Rajesh Kumar",
+    contact: "rajesh.k",
     email: "rajesh.kumar@email.com",
     phone: "+91 98765 43210",
     source: "Website",
-    status: "qualified",
+    budget: "75L - 1Cr",
+    preferredProject: "Samarth Heights",
+    unitType: "2 BHK",
+    status: "Qualified",
     interestedUnit: "A-101",
-    createdAt: "2024-03-01",
     assignedTo: "Priya Sharma",
+    createdAt: "2024-03-01",
+    lastActivity: "2024-03-05",
   },
   {
     id: "l2",
     name: "Sunita Patel",
+    contact: "sunita.p",
     email: "sunita.p@email.com",
     phone: "+91 87654 32109",
     source: "Referral",
-    status: "negotiation",
+    budget: "1Cr - 1.5Cr",
+    preferredProject: "Samarth Heights",
+    unitType: "3 BHK",
+    status: "Negotiation",
     interestedUnit: "B-102",
-    createdAt: "2024-02-28",
     assignedTo: "Amit Singh",
+    createdAt: "2024-02-28",
+    lastActivity: "2024-03-08",
   },
   {
     id: "l3",
     name: "Vikram Mehta",
+    contact: "vikram.m",
     email: "v.mehta@email.com",
     phone: "+91 76543 21098",
     source: "Property Portal",
-    status: "new",
+    budget: "60L - 80L",
+    preferredProject: "Samarth Gardens",
+    unitType: "2 BHK",
+    status: "New",
     interestedUnit: "1-302",
-    createdAt: "2024-03-05",
     assignedTo: "Priya Sharma",
+    createdAt: "2024-03-05",
+    lastActivity: "2024-03-05",
   },
   {
     id: "l4",
     name: "Anita Desai",
+    contact: "anita.d",
     email: "anita.desai@email.com",
     phone: "+91 65432 10987",
     source: "Walk-in",
-    status: "contacted",
+    budget: "90L - 1.2Cr",
+    preferredProject: "Samarth Heights",
+    unitType: "3 BHK",
+    status: "Contacted",
     interestedUnit: "A-201",
-    createdAt: "2024-03-03",
     assignedTo: "Amit Singh",
+    createdAt: "2024-03-03",
+    lastActivity: "2024-03-04",
   },
   {
     id: "l5",
     name: "Mohan Reddy",
+    contact: "mohan.r",
     email: "mohan.r@email.com",
     phone: "+91 54321 09876",
     source: "Social Media",
-    status: "converted",
+    budget: "1Cr+",
+    preferredProject: "Samarth Heights",
+    unitType: "3 BHK",
+    status: "Converted",
     interestedUnit: "A-202",
-    createdAt: "2024-02-15",
     assignedTo: "Priya Sharma",
+    createdAt: "2024-02-15",
+    lastActivity: "2024-02-25",
+  },
+]
+
+// Activities Data
+export const activities: Activity[] = [
+  {
+    id: "act1",
+    leadId: "l1",
+    type: "Call",
+    description: "Initial inquiry call",
+    date: "2024-03-01",
+    status: "Completed",
+    outcome: "Interested in 2BHK, scheduled site visit",
+  },
+  {
+    id: "act2",
+    leadId: "l1",
+    type: "Site Visit",
+    description: "Visited Samarth Heights with family",
+    date: "2024-03-05",
+    status: "Completed",
+    outcome: "Liked A-101, requested price negotiation",
   },
 ]
 
@@ -554,6 +709,21 @@ export const documents: Document[] = [
 
 // Dashboard Stats
 export const dashboardStats = {
+  presales: {
+    totalLeads: 450,
+    newLeads: 45,
+    siteVisits: 28,
+    hotLeads: 55,
+    conversionRate: 12, // percentage
+    campaignSpend: 1540000,
+    leadsBySource: [
+      { name: "Digital Ads", value: 180 },
+      { name: "Walk-in", value: 45 },
+      { name: "Referral", value: 65 },
+      { name: "Channel Partner", value: 120 },
+      { name: "Portals", value: 40 },
+    ],
+  },
   sales: {
     totalUnits: 150,
     unitsSold: 45,
