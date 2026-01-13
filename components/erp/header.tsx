@@ -1,60 +1,143 @@
 "use client"
 
-import { Bell, Search, Settings, Sun, Moon } from "lucide-react"
+import React, { useState, useEffect } from "react"
+import { useTheme } from "next-themes"
+import { 
+    Bell, 
+    Search, 
+    Sun, 
+    Moon, 
+    User,
+    Settings,
+    LogOut,
+    HelpCircle,
+    ChevronDown,
+    Command
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useTheme } from "@/components/theme-provider"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface HeaderProps {
-  title: string
-  subtitle?: string
+    title: string
+    subtitle?: string
 }
 
 export function Header({ title, subtitle }: HeaderProps) {
-  const { theme, setTheme } = useTheme()
+    const { theme, setTheme } = useTheme()
+    const [mounted, setMounted] = useState(false)
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
-  }
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
-  return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/40 bg-background/80 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 lg:h-16 lg:px-6 shadow-sm shadow-black/5">
-      <div className="min-w-0 flex-1 pl-11 lg:pl-0">
-        <h1 className="truncate text-base font-semibold text-foreground lg:text-lg">{title}</h1>
-        {subtitle && <p className="hidden truncate text-xs text-muted-foreground sm:block lg:text-sm">{subtitle}</p>}
-      </div>
+    return (
+        <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900 text-slate-300">
+            <div className="flex h-16 items-center justify-between px-6 lg:px-8">
+                
+                {/* Left Side: Brand & Title */}
+                <div className="flex items-center gap-4">
+                    <div className="flex flex-col border-l-2 border-indigo-500 pl-4">
+                        <h1 className="text-sm font-bold text-white tracking-wide uppercase">
+                            {title}
+                        </h1>
+                        {subtitle && (
+                            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
+                                {subtitle}
+                            </p>
+                        )}
+                    </div>
+                </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
-        {/* Search - hidden on mobile */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search..." className="h-8 w-32 bg-secondary pl-8 text-sm lg:h-9 lg:w-48 xl:w-56" />
-        </div>
+                {/* Right Side: Professional Actions */}
+                <div className="flex items-center gap-4">
+                    
+                    {/* Search - Integrated Dark Style */}
+                    <div className="relative hidden lg:block">
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                        <Input 
+                            placeholder="Quick find..." 
+                            className="h-9 w-72 rounded-lg border-slate-700 bg-slate-800/50 pl-9 text-[13px] text-slate-200 placeholder:text-slate-500 transition-all focus:bg-slate-800 focus:ring-1 focus:ring-slate-600 border-none"
+                        />
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-slate-700 bg-slate-900 text-[10px] text-slate-500 font-mono">
+                            <Command className="h-2 w-2" /> K
+                        </div>
+                    </div>
 
-        {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 lg:h-9 lg:w-9"
-          onClick={toggleTheme}
-          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+                    <div className="flex items-center gap-1">
+                        {/* Theme Toggle */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white"
+                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                        >
+                            {mounted && (
+                                theme === "dark" ? 
+                                <Sun className="h-4 w-4" /> : 
+                                <Moon className="h-4 w-4" />
+                            )}
+                        </Button>
 
-        {/* Notifications - hidden on small mobile */}
-        <Button variant="ghost" size="icon" className="relative hidden h-8 w-8 sm:flex lg:h-9 lg:w-9">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
-            3
-          </span>
-        </Button>
+                        {/* Notifications */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="relative h-9 w-9 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white"
+                        >
+                            <Bell className="h-4 w-4" />
+                            <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-indigo-500 ring-2 ring-slate-900" />
+                        </Button>
+                    </div>
 
-        {/* Settings - hidden on small mobile */}
-        <Button variant="ghost" size="icon" className="hidden h-8 w-8 sm:flex lg:h-9 lg:w-9">
-          <Settings className="h-4 w-4" />
-        </Button>
-      </div>
-    </header>
-  )
+                    {/* User Profile - High Contrast */}
+                    <div className="ml-2 border-l border-slate-700 pl-4">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="flex items-center gap-3 group outline-none">
+                                    <div className="hidden md:flex flex-col items-end text-right">
+                                        <span className="text-[12px] font-bold text-white leading-tight">
+                                            Aditya Verma
+                                        </span>
+                                        <span className="text-[10px] font-medium text-slate-500 tracking-tight">
+                                            Super Admin
+                                        </span>
+                                    </div>
+                                    <Avatar className="h-9 w-9 rounded-lg border border-slate-700 ring-2 ring-transparent group-hover:ring-indigo-500/30 transition-all">
+                                        <AvatarImage src="https://github.com/shadcn.png" />
+                                        <AvatarFallback className="text-xs bg-indigo-600 text-white font-bold">AV</AvatarFallback>
+                                    </Avatar>
+                                </button>
+                            </DropdownMenuTrigger>
+                            
+                            <DropdownMenuContent className="w-56 mt-2 rounded-xl border-slate-800 bg-slate-900 text-slate-300 shadow-2xl p-1" align="end">
+                                <DropdownMenuLabel className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                    Platform Access
+                                </DropdownMenuLabel>
+                                <DropdownMenuItem className="rounded-lg text-[13px] py-2.5 cursor-pointer hover:bg-slate-800 focus:bg-slate-800 focus:text-white">
+                                    <User className="mr-2 h-4 w-4 text-slate-500" /> My Profile
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="rounded-lg text-[13px] py-2.5 cursor-pointer hover:bg-slate-800 focus:bg-slate-800 focus:text-white">
+                                    <Settings className="mr-2 h-4 w-4 text-slate-500" /> Preferences
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-slate-800" />
+                                <DropdownMenuItem className="rounded-lg text-[13px] py-2.5 cursor-pointer text-rose-400 hover:bg-rose-500/10 focus:bg-rose-500/10 focus:text-rose-400">
+                                    <LogOut className="mr-2 h-4 w-4" /> Logout Session
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+    )
 }
