@@ -25,7 +25,7 @@ const navigation = [
     icon: LayoutDashboard,
     children: [
       { name: "Sales Overview", href: "/" },
-      { name: "Analytics", href: "/dashboard/analytics" },
+      { name: "Finance", href: "/dashboard/finance" },
     ],
   },
   {
@@ -46,6 +46,7 @@ const navigation = [
       { name: "Inventory", href: "/inventory" },
       { name: "Bookings", href: "/sales/bookings" },
       { name: "Reservations", href: "/sales/reservations" },
+      
     ],
   },
   {
@@ -53,7 +54,8 @@ const navigation = [
     href: "/postsales",
     icon: FileText,
     children: [
-      { name: "Invoices & Demands", href: "/invoices" },
+      { name: "Invoices & Demands", href: "/sales/collection" },
+      // { name: "Invoices & Demands", href: "/invoices" },
       { name: "Payments & Ledger", href: "/payments" },
       { name: "Documents", href: "/documents" },
     ],

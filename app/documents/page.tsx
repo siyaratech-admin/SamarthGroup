@@ -1,233 +1,199 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/erp/header"
 import { DataTable } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { Drawer } from "@/components/erp/drawer"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { documents, customers } from "@/lib/mock-data"
-import { FileText, Upload, CheckCircle, Clock, AlertCircle, User, Building2, Calendar, Eye } from "lucide-react"
+import { 
+  FileText, Upload, CheckCircle, Clock, 
+  Eye, ShieldCheck, FileSignature, 
+  Search, Download, Printer, Loader2,
+  Check, Send, Sparkles, X
+} from "lucide-react"
 
-export default function DocumentsPage() {
+export default function InteractiveDocumentsPage() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
-  const [statusFilter, setStatusFilter] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [nocStatus, setNocStatus] = useState<"idle" | "sending" | "sent">("idle")
+  const [showPreview, setShowPreview] = useState(false)
 
-  const filteredDocuments = documents.filter((doc) => {
-    if (statusFilter && doc.status !== statusFilter) return false
-    return true
-  })
+  const selectedCustomer = customers.find(c => c.id === selectedCustomerId)
+  const selectedDocs = documents.filter(d => d.customerId === selectedCustomerId)
 
-  const customerGroups = customers.map((customer) => {
-    const customerDocs = documents.filter((d) => d.customerId === customer.id)
-    return {
-      customer,
-      documents: customerDocs,
-      pending: customerDocs.filter((d) => d.status === "pending").length,
-      received: customerDocs.filter((d) => d.status === "received").length,
-      verified: customerDocs.filter((d) => d.status === "verified").length,
-      total: customerDocs.length,
-    }
-  })
+  // --- CRM Logic: Interactive Functions ---
+  
+  const handleGenerateAgreement = () => {
+    setIsGenerating(true)
+    // Simulate CRM Document Engine
+    setTimeout(() => {
+      setIsGenerating(false)
+      setShowPreview(true)
+    }, 2000)
+  }
 
-  const selectedCustomerDocs = selectedCustomerId ? documents.filter((d) => d.customerId === selectedCustomerId) : null
-  const selectedCustomer = selectedCustomerId ? customers.find((c) => c.id === selectedCustomerId) : null
-
-  const columns = [
-    {
-      key: "customerName",
-      header: "Customer",
-      render: (item: (typeof documents)[0]) => (
-        <div className="min-w-[120px]">
-          <span className="font-medium text-foreground block truncate">{item.customerName}</span>
-          <span className="text-[10px] text-muted-foreground sm:hidden">Unit {item.unitNo}</span>
-        </div>
-      ),
-    },
-    { key: "unitNo", header: "Unit" },
-    {
-      key: "documentType",
-      header: "Type",
-      render: (item: (typeof documents)[0]) => (
-        <div className="flex items-center gap-2 min-w-[100px]">
-          <FileText className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
-          <span className="text-sm">{item.documentType}</span>
-        </div>
-      ),
-    },
-    {
-      key: "status",
-      header: "Status",
-      render: (item: (typeof documents)[0]) => <StatusBadge status={item.status} />,
-    },
-    {
-      key: "actions",
-      header: "Actions",
-      render: (item: (typeof documents)[0]) => (
-        <div className="flex items-center gap-2">
-          {item.status === "pending" && (
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0 sm:w-auto sm:px-2 sm:gap-1 bg-transparent">
-              <Upload className="h-3.5 w-3.5" /> <span className="hidden sm:inline text-[10px]">Upload</span>
-            </Button>
-          )}
-          {item.status === "received" && (
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0 sm:w-auto sm:px-2 sm:gap-1 bg-transparent border-blue-500/50 text-blue-500">
-              <CheckCircle className="h-3.5 w-3.5" /> <span className="hidden sm:inline text-[10px]">Verify</span>
-            </Button>
-          )}
-          {item.status === "verified" && (
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 sm:w-auto sm:px-2 sm:gap-1">
-              <Eye className="h-3.5 w-3.5" /> <span className="hidden sm:inline text-[10px]">View</span>
-            </Button>
-          )}
-        </div>
-      ),
-    },
-  ]
-
-  const docCounts = {
-    all: documents.length,
-    pending: documents.filter((d) => d.status === "pending").length,
-    received: documents.filter((d) => d.status === "received").length,
-    verified: documents.filter((d) => d.status === "verified").length,
+  const handleRequestNOC = () => {
+    setNocStatus("sending")
+    // Simulate API Call to Authority/Bank
+    setTimeout(() => {
+      setNocStatus("sent")
+      setTimeout(() => setNocStatus("idle"), 3000)
+    }, 1500)
   }
 
   return (
-    <div className="min-h-screen bg-background pb-10">
-      <Header title="Documents" subtitle="Track submissions and verification" />
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <Header title="Compliance Center" subtitle="Interactive Document Management & Legal Automation" />
 
-      <div className="p-4 sm:p-6">
-        {/* Summary Cards - Grid adjustments */}
-        <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatMini label="Total" count={docCounts.all} icon={FileText} color="text-primary" bg="bg-primary/10" />
-          <StatMini label="Pending" count={docCounts.pending} icon={Clock} color="text-amber-400" bg="bg-amber-500/10" />
-          <StatMini label="Received" count={docCounts.received} icon={Upload} color="text-blue-400" bg="bg-blue-500/10" />
-          <StatMini label="Verified" count={docCounts.verified} icon={CheckCircle} color="text-emerald-400" bg="bg-emerald-500/10" />
-        </div>
-
-        {/* Customer-wise Document Progress */}
-        <div className="mb-8">
-          <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Customer Status</h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {customerGroups.map((group) => (
-              <button
-                key={group.customer.id}
-                onClick={() => setSelectedCustomerId(group.customer.id)}
-                className="group rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-primary/50 hover:shadow-md active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <User className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-bold text-foreground truncate text-sm">{group.customer.name}</div>
-                    <div className="text-[10px] font-medium text-muted-foreground">UNIT {group.customer.unitNo}</div>
-                  </div>
+      <div className="p-4 sm:p-8 space-y-6 max-w-[1500px] mx-auto">
+        
+        {/* --- DYNAMIC CRM ACTION HEADER --- */}
+        <div className="bg-indigo-900 rounded-[32px] p-8 text-white flex flex-col md:flex-row justify-between items-center gap-6 shadow-xl shadow-indigo-200 overflow-hidden relative">
+            <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-4 w-4 text-indigo-300" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">Automated Workflow</span>
                 </div>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <div className="flex gap-3 text-[10px] font-bold uppercase">
-                      <span className="text-amber-500">{group.pending}P</span>
-                      <span className="text-blue-500">{group.received}R</span>
-                      <span className="text-emerald-500">{group.verified}V</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-muted-foreground">
-                      {Math.round((group.verified / group.total) * 100)}%
-                    </span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-muted flex">
-                    <div className="h-full bg-emerald-500 transition-all" style={{ width: `${(group.verified / group.total) * 100}%` }} />
-                    <div className="h-full bg-blue-500 transition-all" style={{ width: `${(group.received / group.total) * 100}%` }} />
-                    <div className="h-full bg-amber-500 transition-all" style={{ width: `${(group.pending / group.total) * 100}%` }} />
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+                <h2 className="text-2xl font-black tracking-tight">Generate Sales Agreements Instantly</h2>
+                <p className="text-indigo-200 text-sm mt-1">Our CRM engine auto-fills customer data into legally vetted templates.</p>
+            </div>
+            <Button className="relative z-10 h-14 px-8 rounded-2xl bg-white text-indigo-900 hover:bg-indigo-50 font-black uppercase text-xs tracking-widest shadow-lg">
+                Upload New Batch
+            </Button>
+            {/* Background Decorative Element */}
+            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/10 to-transparent skew-x-12 translate-x-10" />
         </div>
 
-        {/* Filters - Horizontal Scroll on mobile */}
-        <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-          <FilterPill active={statusFilter === ""} onClick={() => setStatusFilter("")} label="All" count={docCounts.all} color="bg-primary" />
-          <FilterPill active={statusFilter === "pending"} onClick={() => setStatusFilter("pending")} label="Pending" count={docCounts.pending} color="bg-amber-500" />
-          <FilterPill active={statusFilter === "received"} onClick={() => setStatusFilter("received")} label="Received" count={docCounts.received} color="bg-blue-500" />
-          <FilterPill active={statusFilter === "verified"} onClick={() => setStatusFilter("verified")} label="Verified" count={docCounts.verified} color="bg-emerald-500" />
-        </div>
-
-        {/* Table Container */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <DataTable columns={columns} data={filteredDocuments} />
+        {/* --- MAIN DATA TABLE --- */}
+        <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h3 className="font-black text-slate-900 uppercase text-xs tracking-widest">Master Document Vault</h3>
+            <div className="relative w-full md:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input placeholder="Filter by customer..." className="pl-10 h-11 rounded-xl border-slate-200 bg-slate-50 text-xs font-medium" />
+            </div>
           </div>
+          <DataTable 
+            columns={columns} 
+            data={documents} 
+            onRowClick={(row) => setSelectedCustomerId(row.customerId)} 
+          />
         </div>
       </div>
 
-      {/* Checklist Drawer */}
+      {/* --- INTERACTIVE CRM DRAWER --- */}
       <Drawer
         open={!!selectedCustomerId}
-        onClose={() => setSelectedCustomerId(null)}
-        title="Verification Checklist"
+        onClose={() => {
+            setSelectedCustomerId(null)
+            setShowPreview(false)
+        }}
+        title="Account Compliance"
       >
-        {selectedCustomer && selectedCustomerDocs && (
-          <div className="flex flex-col gap-6 pb-10">
-            <div className="flex items-center gap-4 border-b border-border pb-6">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <User className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-foreground leading-tight">{selectedCustomer.name}</h3>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-tighter">Unit {selectedCustomer.unitNo}</p>
-              </div>
+        {selectedCustomer && (
+          <div className="flex flex-col gap-6 pb-12">
+            
+            {/* Customer Profile Card */}
+            <div className="p-5 bg-slate-50 rounded-[24px] border border-slate-100 flex items-center gap-4">
+                <div className="h-14 w-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-100">
+                    {selectedCustomer.name[0]}
+                </div>
+                <div className="flex flex-col text-left">
+                    <span className="text-base font-black text-slate-900">{selectedCustomer.name}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Unit {selectedCustomer.unitNo}</span>
+                        <div className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">KYC Level 2</span>
+                    </div>
+                </div>
             </div>
 
+            {/* INTERACTIVE ACTION BUTTONS */}
+            <div className="grid grid-cols-2 gap-3">
+               <button 
+                  onClick={handleGenerateAgreement}
+                  disabled={isGenerating}
+                  className="flex flex-col items-center justify-center p-5 rounded-[24px] border-2 border-indigo-100 bg-indigo-50/50 gap-3 hover:bg-indigo-50 transition-all group disabled:opacity-50"
+               >
+                  {isGenerating ? (
+                      <Loader2 className="h-6 w-6 text-indigo-600 animate-spin" />
+                  ) : (
+                      <FileSignature className="h-6 w-6 text-indigo-600 group-hover:scale-110 transition-transform" />
+                  )}
+                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">
+                    {isGenerating ? "Drafting..." : "Generate Agreement"}
+                  </span>
+               </button>
+
+               <button 
+                  onClick={handleRequestNOC}
+                  disabled={nocStatus !== "idle"}
+                  className={`flex flex-col items-center justify-center p-5 rounded-[24px] border-2 gap-3 transition-all group 
+                    ${nocStatus === "sent" ? "border-emerald-200 bg-emerald-50" : "border-slate-100 bg-slate-50 hover:bg-slate-100"}`}
+               >
+                  {nocStatus === "sending" ? (
+                      <Loader2 className="h-6 w-6 text-slate-600 animate-spin" />
+                  ) : nocStatus === "sent" ? (
+                      <Check className="h-6 w-6 text-emerald-600" />
+                  ) : (
+                      <Send className="h-6 w-6 text-slate-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  )}
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${nocStatus === 'sent' ? 'text-emerald-600' : 'text-slate-600'}`}>
+                    {nocStatus === "sending" ? "Requesting..." : nocStatus === "sent" ? "Request Sent" : "Request NOC"}
+                  </span>
+               </button>
+            </div>
+
+            {/* LIVE PREVIEW COMPONENT (Appears after Generation) */}
+            {showPreview && (
+                <div className="relative animate-in slide-in-from-bottom-4 duration-500">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg z-10">
+                        Generated Preview
+                    </div>
+                    <div className="bg-white border-2 border-indigo-100 rounded-[24px] p-6 shadow-xl shadow-indigo-50/50">
+                        <div className="space-y-4 opacity-60 pointer-events-none">
+                            <div className="h-4 w-3/4 bg-slate-100 rounded" />
+                            <div className="h-4 w-full bg-slate-100 rounded" />
+                            <div className="h-4 w-1/2 bg-slate-100 rounded" />
+                            <div className="grid grid-cols-2 gap-4 mt-6">
+                                <div className="h-10 bg-slate-50 rounded-lg border border-dashed border-slate-200" />
+                                <div className="h-10 bg-slate-50 rounded-lg border border-dashed border-slate-200" />
+                            </div>
+                        </div>
+                        <div className="flex gap-2 mt-6">
+                            <Button className="flex-1 h-10 bg-indigo-600 text-[10px] font-black uppercase rounded-xl">E-Sign & Send</Button>
+                            <Button variant="ghost" onClick={() => setShowPreview(false)} className="h-10 w-10 p-0 rounded-xl bg-slate-100 text-slate-500">
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Document List */}
             <div className="space-y-3">
-              {selectedCustomerDocs.map((doc) => (
-                <div key={doc.id} className="flex flex-col gap-3 rounded-xl border border-border p-4 bg-muted/20">
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-3">
-                      <div className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
-                        doc.status === "verified" ? "bg-emerald-500/10 text-emerald-500" : 
-                        doc.status === "received" ? "bg-blue-500/10 text-blue-500" : "bg-amber-500/10 text-amber-500"
-                      }`}>
-                        {doc.status === "verified" ? <CheckCircle className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-foreground">{doc.documentType}</div>
-                        {doc.uploadedAt && (
-                          <div className="mt-1 flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-                            <Calendar className="h-3 w-3" /> {doc.uploadedAt}
-                          </div>
-                        )}
-                      </div>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Active Files</h4>
+              {selectedDocs.map((doc) => (
+                <div key={doc.id} className="p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between group hover:border-indigo-200 transition-colors">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                            <FileText className="h-4 w-4" />
+                        </div>
+                        <div className="flex flex-col text-left">
+                           <span className="text-[11px] font-black text-slate-800">{doc.documentType}</span>
+                           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{doc.uploadedAt || 'Ready for upload'}</span>
+                        </div>
                     </div>
                     <StatusBadge status={doc.status} />
-                  </div>
-                  
-                  <div className="flex gap-2 pt-1">
-                    {doc.status === "pending" ? (
-                      <Button variant="default" size="sm" className="w-full gap-2 text-xs h-9">
-                        <Upload className="h-3.5 w-3.5" /> Upload Now
-                      </Button>
-                    ) : (
-                      <>
-                        <Button variant="outline" size="sm" className="flex-1 gap-2 text-xs h-9 bg-card">
-                          <Eye className="h-3.5 w-3.5" /> View
-                        </Button>
-                        {doc.status === "received" && (
-                          <Button size="sm" className="flex-1 gap-2 text-xs h-9 bg-emerald-600 hover:bg-emerald-700">
-                            <CheckCircle className="h-3.5 w-3.5" /> Verify
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
                 </div>
               ))}
             </div>
 
-            <Button variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-primary hover:border-primary/50">
-              <Upload className="h-4 w-4" /> Add Extra Document
+            <Button className="w-full h-14 bg-slate-900 hover:bg-black text-white rounded-[24px] font-black uppercase text-xs tracking-widest shadow-xl">
+                Download Full Dossier
             </Button>
           </div>
         )}
@@ -236,33 +202,46 @@ export default function DocumentsPage() {
   )
 }
 
-// --- Internal UI Components ---
-
-function StatMini({ label, count, icon: Icon, color, bg }: any) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
-      <div className="flex items-center gap-2 sm:gap-3">
-        <div className={`flex h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 items-center justify-center rounded-lg ${bg}`}>
-          <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${color}`} />
+// --- Internal Table Columns ---
+const columns = [
+  {
+    key: "customerName",
+    header: "CUSTOMER",
+    render: (item: any) => (
+      <div className="flex items-center gap-3 py-1 text-left">
+        <div className="h-8 w-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] font-black text-slate-500">
+            {item.customerName[0]}
         </div>
-        <div className="min-w-0">
-          <div className="text-lg sm:text-2xl font-bold text-foreground truncate leading-none">{count}</div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">{label}</div>
+        <div className="flex flex-col">
+            <span className="text-xs font-black text-slate-900">{item.customerName}</span>
+            <span className="text-[9px] font-bold text-indigo-600 uppercase tracking-tighter">Unit {item.unitNo}</span>
         </div>
       </div>
-    </div>
-  )
-}
-
-function FilterPill({ active, onClick, label, count, color }: any) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold transition-all ${
-        active ? `${color} text-white shadow-lg shadow-primary/20` : "bg-muted text-muted-foreground hover:bg-muted/80"
-      }`}
-    >
-      {label} <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-white/20" : "bg-background/50"}`}>{count}</span>
-    </button>
-  )
-}
+    ),
+  },
+  {
+    key: "documentType",
+    header: "DOCUMENT TYPE",
+    render: (item: any) => (
+        <div className="flex items-center gap-2">
+            <div className={`h-2 w-2 rounded-full ${item.documentType.includes('Agreement') ? 'bg-indigo-400' : 'bg-emerald-400'}`} />
+            <span className="text-[11px] font-bold text-slate-700">{item.documentType}</span>
+        </div>
+    )
+  },
+  {
+    key: "status",
+    header: "STATUS",
+    render: (item: any) => <StatusBadge status={item.status} />,
+  },
+  {
+    key: "actions",
+    header: "VAULT",
+    render: () => (
+      <div className="flex items-center gap-1">
+        <Button variant="ghost" size="sm" className="h-8 w-8 rounded-lg hover:bg-indigo-50 hover:text-indigo-600"><Eye className="h-4 w-4" /></Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 rounded-lg"><Download className="h-4 w-4" /></Button>
+      </div>
+    ),
+  },
+]
