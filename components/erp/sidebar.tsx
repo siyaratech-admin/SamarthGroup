@@ -46,7 +46,7 @@ const navigation = [
       { name: "Inventory", href: "/inventory" },
       { name: "Bookings", href: "/sales/bookings" },
       { name: "Reservations", href: "/sales/reservations" },
-      
+
     ],
   },
   {
@@ -54,8 +54,7 @@ const navigation = [
     href: "/postsales",
     icon: FileText,
     children: [
-      { name: "Invoices & Demands", href: "/sales/collection" },
-      // { name: "Invoices & Demands", href: "/invoices" },
+      { name: "Milestone Demands", href: "/post-sales/demands" },
       { name: "Payments & Ledger", href: "/payments" },
       { name: "Documents", href: "/documents" },
     ],
@@ -68,7 +67,7 @@ export function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   const toggleExpand = (name: string) => {
-    setExpandedItems((prev) => 
+    setExpandedItems((prev) =>
       prev.includes(name) ? prev.filter((item) => item !== name) : [...prev, name]
     )
   }
@@ -121,8 +120,8 @@ export function Sidebar() {
                         href={child.href}
                         className={cn(
                           "block rounded-md px-3 py-1.5 text-[12px] transition-all",
-                          isChildActive 
-                            ? "text-indigo-400 font-semibold bg-indigo-500/5" 
+                          isChildActive
+                            ? "text-indigo-400 font-semibold bg-indigo-500/5"
                             : "text-slate-500 hover:text-slate-300"
                         )}
                       >
